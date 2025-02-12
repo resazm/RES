@@ -77,10 +77,9 @@ fig.update_yaxes(tickformat="d")
 #col1.subheader("月別計上")
 col1.plotly_chart(fig, use_container_width=True)
 
-form_counts = detail_df["会社"].value_counts().reset_index()
-form_counts.columns = ["合計金額", "会社"]  
-fig = px.pie(form_counts, values="会社", names="合計金額", title='構成割合', 
-             color_discrete_sequence=px.colors.sequential.Blues)
+#form_counts = detail_df.groupby(["会社","合計金額"]).sum(numeric_only=True)
+
+fig = px.pie(detail_df, values="合計金額", names="会社", title='構成割合')
 col2.plotly_chart(fig, use_container_width=True)
 
 
