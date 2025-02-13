@@ -98,11 +98,9 @@ detail_df7 = df_7[(df_7["計上月"].isin(select_keijo))&(df_7["タイプ1"].isi
 month_group_df7 = detail_df7.groupby(["計上月", "タイプ2", "タイプ1"]).sum(numeric_only=True)
 
 fig = px.bar(detail_df7, x="計上月", y="合計金額", color="タイプ2", barmode="group")
-fig.update_yaxes(tickformat="d")
+fig.update_yaxes(tickformat=",",range=(0, 20000000),dtick=2000000)
 st.subheader("")
 st.plotly_chart(fig, use_container_width=True)
-
-
 
 
 col1, col2 =  st.columns([1, 1])
@@ -114,7 +112,7 @@ with col1:
 
 #自社分テーブル
 with col2:
-   st.subheader("自社利益分")
+   st.subheader("自社利益分(売上*自社報酬率％)")
    pivot_table7= pd.pivot_table(detail_df6, index=["タイプ1","新 業務提携者（従属）"], columns=["計上月"],values=["合計金額"],  aggfunc="sum", margins=True)
    pivot_table7
 
@@ -156,24 +154,32 @@ with col1:
    pivot_table = pd.pivot_table(df, index=(["新 業務提携者（従属）","自社報酬率"]), values=["合計金額","自社報酬分","数量"],  aggfunc="sum", margins=True)
    pivot_table
 
-#df = df.groupby(by=(["新業務提携者（従属）","新報酬率(自社)2"])).sum(numeric_only=True)
-#st.subheader("当月発生月額会費分")
-#st.table(df[["合計金額"]])
-
-#df = df.groupby(by=(["新業務提携者（従属）","新報酬率(自社)2"])).sum(numeric_only=True)
-#st.subheader("自社報酬分")
-#st.table(df[["自社報酬分"]])
 
 with col2:
    #st.subheader("月額会費売上")
    month_group_df = df.groupby(["新 業務提携者（従属）"]).sum(numeric_only=True)
 #month_group_df2 = df.groupby(["新業務提携者（従属）"]).sum(numeric_only=True)
-   fig = px.bar(month_group_df.reset_index(), x="新 業務提携者（従属）", y="合計金額",color="新 業務提携者（従属）", title="")
+   fig = px.bar(month_group_df.reset_index(), x="新 業務提携者（従属）", y="合計金額",color="新 業務提携者（従属）")
 #fig2 = px.bar(month_group_df.reset_index(), x="新業務提携者（従属）",  y="自社報酬分",color="新業務提携者（従属）", title="金額")
-   fig.update_yaxes(tickformat="d")
+   fig.update_yaxes(tickformat=",",range=(0, 5000000),dtick=1000000)
    st.plotly_chart(fig, use_container_width=True)
 
+st.write("*******************************")
 
+#group_df7 = detail_df7.groupby(["新 業務提携者（従属）","タイプ2"]).sum(numeric_only=True)
+
+#fig = px.bar(detail_df7, x="新 業務提携者（従属）", y="合計金額", color="タイプ2", barmode="group")
+#fig.update_yaxes(tickformat=",",range=(0, 20000000),dtick=2000000)
+#st.subheader("")
+#st.plotly_chart(fig, use_container_width=True)
+
+#group_df7 = detail_df7.groupby(["新 業務提携者（従属）","タイプ2"]).sum(numeric_only=True)
+##全体分テーブル
+#st.subheader("全")
+#pivot_table66 = pd.pivot_table(detail_df7, index=(["新 業務提携者（従属）","自社報酬率"]),columns= ["タイプ2"],values=["合計金額"],  aggfunc="sum", margins=True)
+#pivot_table66
+
+st.write("*******************************")
 #month_group_df2 = df.groupby(["新業務提携者（従属）"]).sum(numeric_only=True)
 #fig = px.bar(df.reset_index(), x="新 業務提携者（従属）", y="自社報酬分",color="新 業務提携者（従属）", title="金額")
 #fig2 = px.bar(month_group_df.reset_index(), x="新業務提携者（従属）",  y="自社報酬分",color="新業務提携者（従属）", title="金額")
@@ -209,7 +215,7 @@ with col2:
 #month_group_df2 = df.groupby(["新業務提携者（従属）"]).sum(numeric_only=True)
    fig = px.bar(month_group_df2.reset_index(), x="新 業務提携者（従属）", y="合計金額",color="新 業務提携者（従属）", title="")
 #fig2 = px.bar(month_group_df.reset_index(), x="新業務提携者（従属）",  y="自社報酬分",color="新業務提携者（従属）", title="金額")
-   fig.update_yaxes(tickformat="d")
+   fig.update_yaxes(tickformat=",",range=(0, 5000000),dtick=1000000)
    st.plotly_chart(fig, use_container_width=True)
 
 
