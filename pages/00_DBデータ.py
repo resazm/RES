@@ -10,7 +10,7 @@ st.set_page_config(
    layout="wide",
 )
 
-df = pd.read_excel("./注文DB.xlsx", sheet_name="Sheet1", header=0, usecols="A:EE")
+df = pd.read_excel("./注文DB.xlsx", sheet_name="Sheet1", header=0, usecols="A:EC")
 
 df["新 報酬率(パートナー)"].fillna(0, inplace=True)
 df["新 報酬率(自社)"].fillna(0, inplace=True)
@@ -100,21 +100,20 @@ st.subheader('当月　購入者分布')
 st.map(tougetu_df[['latitude', 'longitude']])
 
 st.subheader('当月　購入単価ヒストグラム')
-fig = px.histogram(tougetu_df, x='商品単価', nbins=30)
-fig.update_yaxes(tickformat=",",range=(0, 30),dtick=2)
+fig = px.histogram(tougetu_df, x='商品単価', nbins=50)
+fig.update_yaxes(tickformat=",",range=(0, 25),dtick=2)
 fig.update_xaxes(dtick=10000,range=(0, 500000))
-fig.update_layout(bargap=0.2)
+fig.update_layout(bargap=0.1)
 st.plotly_chart(fig, use_container_width=True)
 
 
 
 
-
 st.subheader("当月　商品別集計")
-pivot_table = pd.pivot_table(tougetu_df , index=["新 業務提携者（従属）","商品名"],values=["合計金額","数量"],  aggfunc="sum").sort_values("数量",ascending=False)
+pivot_table = pd.pivot_table(tougetu_df , index=["新 業務提携者（従属）","商品名","商品単価"],values=["合計金額","数量"],  aggfunc="sum").sort_values("数量",ascending=False)
 pivot_table
 
-col1, col2=  st.columns([1,1])
+col1, col2, col3=  st.columns([1,1,1])
 with col1:
     st.subheader("当月　オプトイン集計")
     pivot_table = pd.pivot_table(tougetu_df , index=["新 業務提携者（従属）","オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("新 業務提携者（従属）",ascending=False)
