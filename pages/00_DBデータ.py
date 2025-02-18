@@ -100,7 +100,7 @@ st.subheader('当月　購入者分布')
 st.map(tougetu_df[['latitude', 'longitude']])
 
 st.subheader('当月　購入単価ヒストグラム')
-fig = px.histogram(tougetu_df, x='商品単価', nbins=50)
+fig = px.histogram(tougetu_df, x='商品単価', nbins=100)
 fig.update_yaxes(tickformat=",",range=(0, 25),dtick=2)
 fig.update_xaxes(dtick=10000,range=(0, 500000))
 fig.update_layout(bargap=0.1)
