@@ -106,20 +106,23 @@ fig.update_xaxes(dtick=10000,range=(0, 500000))
 fig.update_layout(bargap=0.2)
 st.plotly_chart(fig, use_container_width=True)
 
+
+
+
+
+st.subheader("当月　商品別集計")
+pivot_table = pd.pivot_table(tougetu_df , index=["新 業務提携者（従属）","商品名"],values=["合計金額","数量"],  aggfunc="sum").sort_values("数量",ascending=False)
+pivot_table
+
 col1, col2=  st.columns([1,1])
 with col1:
-    st.subheader("当月　商品別集計")
-    pivot_table = pd.pivot_table(tougetu_df , index=["新 業務提携者（従属）","商品名"],values=["合計金額","数量"],  aggfunc="sum").sort_values("数量",ascending=False)
+    st.subheader("当月　オプトイン集計")
+    pivot_table = pd.pivot_table(tougetu_df , index=["新 業務提携者（従属）","オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("新 業務提携者（従属）",ascending=False)
     pivot_table
 with col2:
     st.subheader("当月　受注経路集計")
     pivot_table = pd.pivot_table(tougetu_df , index=["受注経路","支払方法"],values=["合計金額","数量"],  aggfunc="sum").sort_values("数量",ascending=False)
-    pivot_table
-
-st.subheader("当月　オプトイン集計")
-pivot_table = pd.pivot_table(tougetu_df , index=["オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("数量",ascending=False)
-pivot_table
-
+    pivot_table 
 
 st.write("-----------------------")
 
