@@ -56,7 +56,7 @@ with col2:
     gap=str(gap)
     st.metric(f"📓{this_month}月の新規顧客DB登録件数", f"{this_month_kokyaku}名", border=True, delta=gap +"名")
 
-st.subheader(f"📓{this_month}月の新規顧客DB登録者流入元TOP10")
+st.subheader(f"📓{this_month}月の顧客DB 新規登録者流入元TOP10")
 col1, col2= st.columns([1,3])
 with col1:
     df_kokyaku2= df_kokyaku.loc[(df_kokyaku["顧客登録日"].dt.month  == this_month)&(df_kokyaku["顧客登録日"].dt.year  == this_year)]
