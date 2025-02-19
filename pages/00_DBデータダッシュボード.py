@@ -102,7 +102,7 @@ this_month_Reg = df.loc[(df["顧客登録日"].dt.month  == this_month)&(df["顧
 gap=this_month_Reg-last_month_Reg
 gap=int(gap)
 gap=f"{gap:,}"
-col3.metric(f"📓顧客登録日が{this_month}月の人の{this_month}月中の注文件数", f"{this_month_Reg:,}名", border=True, delta=gap +"件")
+col3.metric(f"📓顧客登録日が{this_month}月の人の{this_month}月中の注文件数", f"{this_month_Reg:,}件", border=True, delta=gap +"件")
 
 
 st.write("-----------------------")
