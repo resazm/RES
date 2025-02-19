@@ -10,6 +10,8 @@ st.set_page_config(
    layout="wide",
 )
 
+
+df_kokyaku = pd.read_excel("./顧客DB.xlsx", sheet_name="Sheet1", header=0, usecols="A:CN")
 df = pd.read_excel("./注文DB.xlsx", sheet_name="Sheet1", header=0, usecols="A:EC")
 
 df["新 報酬率(パートナー)"].fillna(0, inplace=True)
@@ -25,32 +27,84 @@ df["年月"] = df['注文日'].dt.strftime('%Y/%m')
 df["年月日"] = df['注文日'].dt.strftime('%Y/%m/%d')
 df["日付"] = df['注文日'].dt.strftime('%d')
 
+
 df["自社報酬分"] = (df["合計金額"]*df["新 報酬率(自社)"] /100).astype(int)# 列を追加
 
 
 today = date.today()  # 今日の日付を取得
 this_year = today.year  # 年を取り出し
 this_month = today.month  # 月を取り出し
-one_month_ago = (today - relativedelta(months=1)).strftime('%m')
+one_month_ago = (today - relativedelta(months=1)) # 先月の月だけを取り出したいので
+
 this_ym = format(date.today(), '%Y/%m')
 
-st.title("■当月注文DBデータ分析")
+st.title("■注文DB/顧客DBデータ分析　ダッシュボード")
+st.write(f"{today}時点")
+st.write("-----------------------")
+st.subheader("🖥️顧客DB")
+this_year_kokyaku = df_kokyaku.loc[df_kokyaku["顧客登録日"].dt.year == this_year, "顧客ID"].count()
+st.metric("📝今年の新規顧客DB登録件数", f"{this_year_kokyaku}名", border=True)
+
+
+col1, col2= st.columns(2)
+with col1:
+    one_month_ago_kokyaku = df_kokyaku.loc[df_kokyaku["顧客登録日"].dt.month == one_month_ago.month, "顧客ID"].count()
+    st.metric(f"📓{one_month_ago.month}月の新規顧客DB登録件数", f"{one_month_ago_kokyaku}名", border=True)
+with col2:
+    this_month_kokyaku = df_kokyaku.loc[df_kokyaku["顧客登録日"].dt.month == this_month, "顧客ID"].count()
+    gap=(this_month_kokyaku-one_month_ago_kokyaku)
+    gap=str(gap)
+    st.metric(f"📓{this_month}月の新規顧客DB登録件数", f"{this_month_kokyaku}名", border=True, delta=gap +"名")
+
+
+
 
 st.write("-----------------------")
-col1, col2, col3, col4 = st.columns(4)
-# 今年の購入回数
+st.subheader("🖥️注文DB")
+col1, col2, col3= st.columns(3)
+# 今年
 this_year_counts = df.loc[df["注文日"].dt.year == this_year, "数量"].sum()
-col1.metric("📝今年の注文件数", f"{this_year_counts:,}回", border=True)
+col1.metric("📝今年の注文件数", f"{this_year_counts:,}件", border=True)
 
 this_year_purchase = df.loc[df["注文日"].dt.year == this_year, "合計金額"].sum()
 #this_year_purchase.tickformat=","
 col2.metric("💰今年の注文金額合計", f"{this_year_purchase:,}円", border=True)
 
+this_year_Reg = df.loc[df["顧客登録日"].dt.year  == this_year , "数量"].sum()
+col3.metric("📓顧客登録日が今年の人の今年の注文件数累計", f"{this_year_Reg:,}名", border=True)
+st.write("-----------------------")
+
+# 先月
+col1, col2, col3= st.columns(3)
+last_month_counts = df.loc[df["注文日"].dt.month == one_month_ago.month, "数量"].sum()
+col1.metric("📝先月の注文件数", f"{last_month_counts:,}件", border=True)
+
+last_month_purchase = df.loc[df["注文日"].dt.month == one_month_ago.month, "合計金額"].sum()
+col2.metric("💰先月の注文金額合計", f"{last_month_purchase:,}円", border=True)
+
+last_month_Reg = df.loc[(df["顧客登録日"].dt.month  == one_month_ago.month)&(df["顧客登録日"].dt.year  == this_year)&(df["注文日"].dt.month  == one_month_ago.month), "数量"].sum()
+col3.metric(f"📓顧客登録日が{one_month_ago.month}月の人の{one_month_ago.month}月中の注文件数", f"{last_month_Reg:,}名", border=True)
+
+# 今月
+col1, col2, col3= st.columns(3)
 this_month_counts = df.loc[df["注文日"].dt.month == this_month, "数量"].sum()
-col3.metric("📝今月の注文件数", f"{this_month_counts:,}回", border=True)
+gap=(this_month_counts-last_month_counts)
+gap=str(gap)
+col1.metric("📝今月の注文件数", f"{this_month_counts:,}件", border=True, delta=gap +"件")
 
 this_month_purchase = df.loc[df["注文日"].dt.month == this_month, "合計金額"].sum()
-col4.metric("💰今月の注文金額合計", f"{this_month_purchase:,}円", border=True)
+gap=this_month_purchase-last_month_purchase
+gap=int(gap)
+gap=f"{gap:,}"
+col2.metric("💰今月の注文金額合計", f"{this_month_purchase:,}円", border=True, delta=gap +"円")
+
+this_month_Reg = df.loc[(df["顧客登録日"].dt.month  == this_month)&(df["顧客登録日"].dt.year  == this_year) , "数量"].sum()
+gap=this_month_Reg-last_month_Reg
+gap=int(gap)
+gap=f"{gap:,}"
+col3.metric(f"📓顧客登録日が{this_month}月の人の{this_month}月中の注文件数", f"{this_month_Reg:,}名", border=True, delta=gap +"名")
+
+
 st.write("-----------------------")
 
 col1, col2 =  st.columns([2, 1])
@@ -93,11 +147,15 @@ with col2:
 #st.subheader("")
 #st.plotly_chart(fig, use_container_width=True)
 
+col1, col2 =  st.columns([1, 1])
+with col1:
+    st.subheader('購入者分布(2024.9~累計)')
+    st.map(df[['latitude', 'longitude']])
+with col2:
+    st.subheader('当月　購入者分布')
+    st.map(tougetu_df[['latitude', 'longitude']])
 
 
-
-st.subheader('当月　購入者分布')
-st.map(tougetu_df[['latitude', 'longitude']])
 
 st.subheader('当月　購入単価ヒストグラム')
 fig = px.histogram(tougetu_df, x='商品単価', nbins=100)
