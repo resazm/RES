@@ -69,9 +69,9 @@ with col2:
 #pivot_table = pd.pivot_table(grouped , index=["オプトイン"],columns="顧客ID",values=["顧客ID"],  aggfunc="sum", margins=True)
 #pivot_table
     fig = px.bar(grouped.iloc[:10].sort_values(by="顧客ID", ascending=False).reset_index(), x="顧客ID", y="オプトイン", color="オプトイン", orientation="h")
-    fig.update_layout(showlegend=True)
-    fig.update_xaxes(side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',dtick=25,range=(0, 250))
-    fig.update_yaxes(gridcolor='lightgrey', gridwidth=1, griddash='dot')
+    fig.update_layout(showlegend=True,plot_bgcolor="white")
+    fig.update_xaxes(title="登録件数",linecolor='black',side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',dtick=25,range=(0, 250))
+    fig.update_yaxes(title="流入元",linecolor='black',gridcolor='lightgrey', gridwidth=1, griddash='dot')
     st.plotly_chart(fig, use_container_width=True)
 
 
