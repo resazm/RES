@@ -171,14 +171,14 @@ st.subheader("当月　商品別集計")
 pivot_table = pd.pivot_table(tougetu_df , index=["新 業務提携者（従属）","商品名","商品単価"],values=["合計金額","数量"],  aggfunc="sum").sort_values("数量",ascending=False)
 pivot_table
 
-col1, col2, col3=  st.columns([1,1,1])
+col1, col2=  st.columns(2)
 with col1:
     st.subheader("当月　オプトイン集計")
     pivot_table = pd.pivot_table(tougetu_df , index=["新 業務提携者（従属）","オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("新 業務提携者（従属）",ascending=False)
     pivot_table
 with col2:
     st.subheader("当月　受注経路集計")
-    pivot_table = pd.pivot_table(tougetu_df , index=["受注経路","支払方法"],values=["合計金額","数量"],  aggfunc="sum").sort_values("数量",ascending=False)
+    pivot_table = pd.pivot_table(tougetu_df , index=["受注経路","支払方法"],values=["合計金額","数量"],  aggfunc="sum", margins=True).sort_values("数量",ascending=False)
     pivot_table 
 
 st.write("-----------------------")
