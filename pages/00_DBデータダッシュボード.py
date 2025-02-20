@@ -64,7 +64,7 @@ with col1:
     grouped = df_kokyaku2.groupby("オプトイン").count()
     #grouped = grouped.assign(合計 = grouped.sum(axis=0))
     #grouped = pd.concat([grouped.sum(numeric_only=True)], ignore_index=True)
-    grouped = grouped.iloc[:10].sort_values(by="顧客ID", ascending=False)
+    grouped = grouped.sort_values(by="顧客ID", ascending=False)
     grouped["顧客ID"]
 with col2:
 #pivot_table = pd.pivot_table(grouped , index=["オプトイン"],columns="顧客ID",values=["顧客ID"],  aggfunc="sum", margins=True)
