@@ -76,6 +76,9 @@ with col2:
     st.plotly_chart(fig, use_container_width=True)
 
 
+
+
+
 st.write("-----------------------")
 st.subheader("🖥️注文DB")
 col1, col2, col3= st.columns(3)
@@ -144,6 +147,12 @@ with col2:
 #tougetu_df=["年月日"].strptime(tougetu_df["年月日"]"%Y-%m-%d",)
 #print(tougetu_df["年月日"].strptime)
 
+
+
+
+
+
+
 col1, col2 =  st.columns([2, 1])
 with col1:
     st.subheader("当月　日別/パートナー別注文動向（件数）")
@@ -155,6 +164,20 @@ with col2:
     fig.update_yaxes(tickformat=",",range=(0, 30),dtick=2)
     fig.update_xaxes(dtick=2,range=(0, 31))
     st.subheader("")
+    st.plotly_chart(fig, use_container_width=True)
+
+col1, col2 =  st.columns([1, 3])
+with col1:
+    st.subheader("当月　注文顧客の流入元")
+    pivot_table = pd.pivot_table(tougetu_df, index=["オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("合計金額",ascending=False)
+    pivot_table
+# .sort_values(by="合計金額", ascending=False)
+# grtougetu = tougetu_df.groupby("オプトイン")
+with col2:
+    fig = px.bar(tougetu_df.sort_values(by="オプトイン", ascending=False), x="合計金額", y="オプトイン", color="オプトイン", orientation="h")
+    fig.update_layout(showlegend=False,plot_bgcolor="white")
+    fig.update_xaxes(title="当月注文金額合計",linecolor='black',side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',tickformat=",",dtick=100000)
+    fig.update_yaxes(title="顧客流入元",linecolor='black',gridcolor='lightgrey', gridwidth=1, griddash='dot',categoryorder='total ascending',tickfont_size=10)
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -188,16 +211,15 @@ st.subheader("当月　商品別集計")
 pivot_table = pd.pivot_table(tougetu_df , index=["新 業務提携者（従属）","商品名","商品単価"],values=["合計金額","数量"],  aggfunc="sum").sort_values("数量",ascending=False)
 pivot_table
 
-col1, col2=  st.columns(2)
-with col1:
-    #grouped_agg = tougetu_df.groupby(["新 業務提携者（従属）","オプトイン"]).sum(numeric_only=True)
-    st.subheader("当月　オプトイン集計")
-    pivot_table = pd.pivot_table(tougetu_df, index=["新 業務提携者（従属）","オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("新 業務提携者（従属）",ascending=False)
-    pivot_table
-with col2:
-    st.subheader("当月　受注経路集計")
-    pivot_table = pd.pivot_table(tougetu_df , index=["受注経路","支払方法"],values=["合計金額","数量"],  aggfunc="sum", margins=True).sort_values("数量",ascending=False)
-    pivot_table 
+#col1, col2=  st.columns(2)
+#grouped_agg = tougetu_df.groupby(["新 業務提携者（従属）","オプトイン"]).sum(numeric_only=True)
+#st.subheader("当月　オプトイン集計")
+#pivot_table = pd.pivot_table(tougetu_df, index=["新 業務提携者（従属）","オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("新 業務提携者（従属）",ascending=False)
+#pivot_table
+
+st.subheader("当月　受注経路集計")
+pivot_table = pd.pivot_table(tougetu_df , index=["受注経路","支払方法"],values=["合計金額","数量"],  aggfunc="sum", margins=True).sort_values("数量",ascending=False)
+pivot_table 
 
 st.write("-----------------------")
 
