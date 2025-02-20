@@ -56,6 +56,7 @@ with col2:
     gap=str(gap)
     st.metric(f"📓{this_month}月の新規顧客DB登録件数", f"{this_month_kokyaku}名", border=True, delta=gap +"名")
 
+
 st.subheader(f"📓{this_month}月の顧客DB 新規登録者流入元TOP10")
 col1, col2= st.columns([1,3])
 with col1:
@@ -70,7 +71,7 @@ with col2:
 #pivot_table
     fig = px.bar(grouped.iloc[:10].sort_values(by="顧客ID", ascending=False).reset_index(), x="顧客ID", y="オプトイン", color="オプトイン", orientation="h")
     fig.update_layout(showlegend=True,plot_bgcolor="white")
-    fig.update_xaxes(title="登録件数",linecolor='black',side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',dtick=25,range=(0, 250))
+    fig.update_xaxes(title="登録件数",linecolor='black',side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',dtick=25,range=(0, 500))
     fig.update_yaxes(title="流入元",linecolor='black',gridcolor='lightgrey', gridwidth=1, griddash='dot')
     st.plotly_chart(fig, use_container_width=True)
 
