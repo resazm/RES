@@ -168,24 +168,17 @@ with col2:
 
 col1, col2 =  st.columns([1, 3])
 with col1:
-    st.subheader("当月　注文顧客の流入元")
+    st.subheader("当月注文顧客の流入元")
     pivot_table = pd.pivot_table(tougetu_df, index=["オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("合計金額",ascending=False)
     pivot_table
-# .sort_values(by="合計金額", ascending=False)
-# grtougetu = tougetu_df.groupby("オプトイン")
 with col2:
+    st.subheader("")
     fig = px.bar(tougetu_df.sort_values(by="オプトイン", ascending=False), x="合計金額", y="オプトイン", color="オプトイン", orientation="h")
     fig.update_layout(showlegend=False,plot_bgcolor="white")
     fig.update_xaxes(title="当月注文金額合計",linecolor='black',side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',tickformat=",",dtick=100000)
     fig.update_yaxes(title="顧客流入元",linecolor='black',gridcolor='lightgrey', gridwidth=1, griddash='dot',categoryorder='total ascending',tickfont_size=10)
     st.plotly_chart(fig, use_container_width=True)
 
-
-#fig = px.bar(tougetu_df .reset_index(), x="商品単価", y="数量",title="", barmode="stack")
-#fig.update_yaxes(tickformat=",",range=(0, 30),dtick=2)
-#fig.update_xaxes(dtick=50000,range=(0, 500000))
-#st.subheader("")
-#st.plotly_chart(fig, use_container_width=True)
 
 col1, col2 =  st.columns([1, 1])
 with col1:
