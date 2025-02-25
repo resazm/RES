@@ -248,14 +248,16 @@ pivot_table
 
 df1 = df.groupby(["年月", "新 業務提携者（従属）"]).sum(numeric_only=True)
 
-fig = px.bar(df1.reset_index(), x="年月", y="合計金額", color="新 業務提携者（従属）", title="金額", barmode="stack")
-fig.update_yaxes(tickformat=",",range=(0, 100000000),dtick=10000000)
-st.subheader("全体売上分")
-st.plotly_chart(fig, use_container_width=True)
-
-fig = px.bar(df1.reset_index(), x="年月", y="自社報酬分", color="新 業務提携者（従属）", title="金額", barmode="stack")
-fig.update_yaxes(tickformat=",",range=(0, 100000000),dtick=10000000)
-st.subheader("自社利益相当分(売上*自社報酬率％")
-st.plotly_chart(fig, use_container_width=True)
+col1, col2 =  st.columns([1, 1])
+with col1:  
+    fig = px.bar(df1.reset_index(), x="年月", y="合計金額", color="新 業務提携者（従属）", title="金額", barmode="stack")
+    fig.update_yaxes(tickformat=",",range=(0, 100000000),dtick=10000000)
+    st.subheader("全体売上分")
+    st.plotly_chart(fig, use_container_width=True)
+with col2:
+    fig = px.bar(df1.reset_index(), x="年月", y="自社報酬分", color="新 業務提携者（従属）", title="金額", barmode="stack")
+    fig.update_yaxes(tickformat=",",range=(0, 100000000),dtick=10000000)
+    st.subheader("自社利益相当分(売上*自社報酬率％")
+    st.plotly_chart(fig, use_container_width=True)
 
 
