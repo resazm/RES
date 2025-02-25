@@ -16,6 +16,7 @@ df = pd.read_excel("./注文DB.xlsx", sheet_name="Sheet1", header=0, usecols="A:
 df["新 報酬率(パートナー)"].fillna(0, inplace=True)
 df["新 報酬率(自社)"].fillna(0, inplace=True)
 df["オプトイン"].fillna("(空欄)", inplace=True)
+df_kokyaku["オプトイン"].fillna("(空欄)", inplace=True)
 
 df[["新 報酬率(パートナー)", "新 報酬率(自社)","合計金額"]] = df[["新 報酬率(パートナー)", "新 報酬率(自社)","合計金額"]].astype(int)  # 金額や数量を整数型に変換
 
