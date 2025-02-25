@@ -217,7 +217,7 @@ with col2:
 st.subheader('当月　購入単価ヒストグラム')
 fig = px.histogram(tougetu_df, x='商品単価', nbins=100)
 fig.update_yaxes(tickformat=",",range=(0, 25),dtick=2)
-fig.update_xaxes(dtick=10000,range=(0, 500000))
+fig.update_xaxes(dtick=10000) #range=(0, 500000)
 fig.update_layout(bargap=0.1)
 st.plotly_chart(fig, use_container_width=True)
 
