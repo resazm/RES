@@ -95,7 +95,7 @@ with col2:
 #pivot_table
     fig = px.bar(grouped.iloc[:10].sort_values(by="顧客ID", ascending=False).reset_index(), x="顧客ID", y="オプトイン", color="オプトイン", orientation="h")
     fig.update_layout(showlegend=True,plot_bgcolor="white")
-    fig.update_xaxes(title="登録件数",linecolor='black',side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',dtick=25) #,range=(0, 500)
+    fig.update_xaxes(title="登録件数",linecolor='black',side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',dtick=25,range=(0, 800)) #
     fig.update_yaxes(title="流入元",linecolor='black',gridcolor='lightgrey', gridwidth=1, griddash='dot')
     st.plotly_chart(fig, use_container_width=True)
 
