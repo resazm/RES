@@ -3,7 +3,9 @@ from datetime import date
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 from dateutil.relativedelta import relativedelta
+from plotly.subplots import make_subplots
 
 st.set_page_config(
    page_title="",
@@ -196,14 +198,33 @@ with col1:
     st.subheader("当月注文顧客の流入元")
     pivot_table = pd.pivot_table(tougetu_df, index=["オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("合計金額",ascending=False)
     pivot_table
+    #tougetu_df2 = tougetu_df.groupby("オプトイン").sum(numeric_only=True).iloc[:10].reset_index() #※トップ10だけ表示
+    #pivot_table = pd.pivot_table(tougetu_df2, index=["オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("合計金額",ascending=False)
+    #pivot_table
 with col2:
     st.subheader("")
     fig = px.bar(tougetu_df.sort_values(by="オプトイン", ascending=False), x="合計金額", y="オプトイン", color="オプトイン", orientation="h")
     fig.update_layout(showlegend=False,plot_bgcolor="white")
     fig.update_xaxes(title="当月注文金額合計",linecolor='black',side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',tickformat=",",dtick=100000)
-    fig.update_yaxes(title="顧客流入元",linecolor='black',gridcolor='lightgrey', gridwidth=1, griddash='dot',categoryorder='total ascending',tickfont_size=9)
+    fig.update_yaxes(title="顧客流入元",linecolor='black',gridcolor='lightgrey', gridwidth=1, griddash='dot',categoryorder='total ascending',tickfont_size=8)
     st.plotly_chart(fig, use_container_width=True)
+    #st.subheader("")
+    #fig2 = px.bar(tougetu_df2.sort_values(by="オプトイン", ascending=False), x="数量", y="オプトイン", color="オプトイン", orientation="h")
+    #fig2.update_layout(showlegend=False,plot_bgcolor="white")
+    #fig2.update_xaxes(title="当月注文金額合計",linecolor='black',side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',tickformat=",",dtick=10)
+    #fig2.update_yaxes(title="顧客流入元",linecolor='black',gridcolor='lightgrey', gridwidth=1, griddash='dot',categoryorder='total ascending',tickfont_size=8)
+    #st.plotly_chart(fig2, use_container_width=True)
 
+#fig = go.Figure()
+#fig= make_subplots(specs=[[{"secondary_y": True}]])
+#tougetu_df3 = tougetu_df.groupby("オプトイン").count().reset_index()
+#fig.add_trace(go.Bar(x=tougetu_df3["合計金額"], y=tougetu_df3["オプトイン"]))
+#fig.add_trace(go.Bar(x=tougetu_df3["数量"], y=tougetu_df3["オプトイン"]))
+#fig.update_layout(legend=dict(orientation='h'))
+#st.plotly_chart(fig, use_container_width=True)
+
+st.subheader("上記　オプトインが「(空欄)」のデータ一覧")
+st.dataframe(tougetu_df.loc[(df["オプトイン"]  == "(空欄)") ].reset_index())
 
 col1, col2 =  st.columns([1, 1])
 with col1:
