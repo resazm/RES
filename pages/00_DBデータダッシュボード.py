@@ -247,7 +247,8 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 st.subheader("当月　商品別集計")
-pivot_table = pd.pivot_table(tougetu_df , index=["新 業務提携者（従属）","商品名","商品単価"],values=["合計金額","数量"],  aggfunc="sum").sort_values("数量",ascending=False)
+tougetu_df["商品単価"] = tougetu_df["商品単価"].astype(str) 
+pivot_table = pd.pivot_table(tougetu_df , index=["新 業務提携者（従属）","商品名","商品単価"],values=["合計金額","数量"],  aggfunc="sum", margins=True).sort_values("数量",ascending=False)
 pivot_table
 
 #col1, col2=  st.columns(2)
