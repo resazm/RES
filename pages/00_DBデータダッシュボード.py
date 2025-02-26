@@ -69,7 +69,7 @@ with col1:
     grouped2 = df_kokyaku.groupby("年月").count()
     fig = px.bar(grouped2 .reset_index(), x="年月", y="顧客ID", barmode="stack",title=f"{this_year}年 月別 顧客DB登録件数")
     fig.update_layout(width=500,height=400)
-    fig.update_yaxes(title="顧客DB登録件数",tickformat=",",linecolor='black',)
+    fig.update_yaxes(title="顧客DB登録件数",tickformat=",",linecolor='black',dtick=200)
     fig.update_xaxes(title="",range=(-1, 12),linecolor='black',)
     st.subheader("")
     st.plotly_chart(fig, use_container_width=True)
@@ -79,7 +79,7 @@ with col2:
     fig = px.bar(grouped3.reset_index(), x="日付", y="顧客ID", barmode="stack",title=f"{this_month}月 日別 顧客DB登録件数")
     fig.update_layout(width=500,height=400)
     fig.update_yaxes(title="顧客DB登録件数",tickformat=",",linecolor='black',dtick=20)
-    fig.update_xaxes(range=(0, 32),linecolor='black',dtick=2)
+    fig.update_xaxes(range=(0, 31),linecolor='black',dtick=2)
     st.subheader("")
     st.plotly_chart(fig, use_container_width=True)
 
