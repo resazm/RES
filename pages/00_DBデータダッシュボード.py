@@ -213,7 +213,7 @@ with col2:
     fig2 = px.bar(tougetu_df2.sort_values(by="オプトイン", ascending=False), x="合計金額", y="オプトイン", color="オプトイン", orientation="h", title="オプトイン別 当月注文金額合計 TOP20")
     fig2.update_layout(showlegend=False,plot_bgcolor="white")
     fig2.update_xaxes(title="当月注文金額合計",linecolor='black',side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',tickformat=",",dtick=200000)
-    fig2.update_yaxes(title="顧客流入元",linecolor='black',gridcolor='lightgrey', gridwidth=1, griddash='dot',categoryorder='total ascending',tickfont_size=11)
+    fig2.update_yaxes(title="顧客流入元",linecolor='black',gridcolor='lightgrey', gridwidth=1, griddash='dot',categoryorder='total ascending',tickfont_size=10)
     st.plotly_chart(fig2, use_container_width=True)
 
 #fig = go.Figure()
