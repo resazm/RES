@@ -162,7 +162,7 @@ with col1:
     pivot_table
 with col2:
     fig = px.bar(tougetu_df .reset_index(), x="日付", y="合計金額", color="新 業務提携者（従属）", title="金額", barmode="stack")
-    fig.update_yaxes(tickformat=",",dtick=100000)#,range=(0, 2000000)
+    fig.update_yaxes(tickformat=",",dtick=200000)#,range=(0, 2000000)
     fig.update_xaxes(dtick=2,range=(0, 31))
     st.subheader("")
     st.plotly_chart(fig, use_container_width=True)
@@ -188,7 +188,7 @@ with col1:
     pivot_table
 with col2:
     fig = px.bar(tougetu_df .reset_index(), x="日付", y="数量", color="新 業務提携者（従属）", title="数量", barmode="stack")
-    fig.update_yaxes(tickformat=",",range=(0, 30),dtick=2)
+    fig.update_yaxes(tickformat=",",dtick=2)
     fig.update_xaxes(dtick=2,range=(0, 31))
     st.subheader("")
     st.plotly_chart(fig, use_container_width=True)
@@ -239,7 +239,7 @@ with col2:
 
 st.subheader('当月　購入単価ヒストグラム')
 fig = px.histogram(tougetu_df, x='商品単価', nbins=100)
-fig.update_yaxes(tickformat=",",range=(0, 25),dtick=2)
+fig.update_yaxes(tickformat=",",dtick=5)
 fig.update_xaxes(dtick=10000) #range=(0, 500000)
 fig.update_layout(bargap=0.1)
 st.plotly_chart(fig, use_container_width=True)
