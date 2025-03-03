@@ -259,7 +259,7 @@ pivot_table
 #pivot_table
 
 st.subheader("当月　受注経路集計")
-pivot_table = pd.pivot_table(tougetu_df , index=["受注経路","支払方法"],values=["合計金額","数量"],  aggfunc="sum", margins=True).sort_values("数量",ascending=False)
+pivot_table = pd.pivot_table(tougetu_df , index=["受注経路"],values=["合計金額","数量"],  aggfunc="sum", margins=True).sort_values("数量",ascending=False)
 pivot_table 
 
 st.write("-----------------------")
