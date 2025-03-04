@@ -43,11 +43,13 @@ today = date.today()  # 今日の日付を取得
 this_year = today.year  # 年を取り出し
 this_month = today.month  # 月を取り出し
 one_month_ago = (today - relativedelta(months=1)) # 先月の月だけを取り出したいので
+two_month_ago = (today - relativedelta(months=2)) # 先月の月だけを取り出したいので
 
 this_ym = format(date.today(), '%Y/%m')
+last_ym = format(one_month_ago, '%Y/%m')
 
 st.title("■注文DB/顧客DBデータ分析　ダッシュボード")
-st.write(f"{today}時点")
+st.write(f"{last_ym}時点")
 st.write("-----------------------")
 st.subheader("🖥️顧客DB")
 this_year_kokyaku = df_kokyaku.loc[df_kokyaku["顧客登録日"].dt.year == this_year, "顧客ID"].count()
@@ -56,13 +58,13 @@ st.metric("📝今年の新規顧客DB登録件数", f"{this_year_kokyaku}名", 
 
 col1, col2, col3= st.columns(3)
 with col1:
-    one_month_ago_kokyaku = df_kokyaku.loc[df_kokyaku["顧客登録日"].dt.month == one_month_ago.month, "顧客ID"].count()
-    st.metric(f"📓{one_month_ago.month}月の新規顧客DB登録件数", f"{one_month_ago_kokyaku}名", border=True)
+    two_month_ago_kokyaku = df_kokyaku.loc[df_kokyaku["顧客登録日"].dt.month == two_month_ago.month, "顧客ID"].count()
+    st.metric(f"📓{two_month_ago.month}月の新規顧客DB登録件数", f"{two_month_ago_kokyaku}名", border=True)
 with col2:
-    this_month_kokyaku = df_kokyaku.loc[df_kokyaku["顧客登録日"].dt.month == this_month, "顧客ID"].count()
-    gap=(this_month_kokyaku-one_month_ago_kokyaku)
+    one_month_ago_kokyaku = df_kokyaku.loc[df_kokyaku["顧客登録日"].dt.month == one_month_ago.month, "顧客ID"].count()
+    gap=(one_month_ago_kokyaku-two_month_ago_kokyaku)
     gap=str(gap)
-    st.metric(f"📓{this_month}月の新規顧客DB登録件数", f"{this_month_kokyaku}名", border=True, delta=gap +"名")
+    st.metric(f"📓{one_month_ago.month}月の新規顧客DB登録件数", f"{one_month_ago_kokyaku}名", border=True, delta=gap +"名")
 
 col1, col2, col3= st.columns(3)
 with col1:
@@ -74,9 +76,9 @@ with col1:
     st.subheader("")
     st.plotly_chart(fig, use_container_width=True)
 with col2:
-    df_kokyaku = df_kokyaku.loc[df_kokyaku["顧客登録日"].dt.month == this_month]
+    df_kokyaku = df_kokyaku.loc[df_kokyaku["顧客登録日"].dt.month == one_month_ago.month ]
     grouped3 = df_kokyaku.groupby("日付").count()
-    fig = px.bar(grouped3.reset_index(), x="日付", y="顧客ID", barmode="stack",title=f"{this_month}月 日別 顧客DB登録件数")
+    fig = px.bar(grouped3.reset_index(), x="日付", y="顧客ID", barmode="stack",title=f"{one_month_ago.month}月 日別 顧客DB登録件数")
     fig.update_layout(width=500,height=400)
     fig.update_yaxes(title="顧客DB登録件数",tickformat=",",linecolor='black',dtick=20)
     fig.update_xaxes(range=(0, 31),linecolor='black',dtick=2)
@@ -84,10 +86,10 @@ with col2:
     st.plotly_chart(fig, use_container_width=True)
 
 
-st.subheader(f"📓{this_month}月の顧客DB 新規登録者流入元TOP10")
+st.subheader(f"📓{one_month_ago.month}月の顧客DB 新規登録者流入元TOP10")
 col1, col2= st.columns([1,3])
 with col1:
-    df_kokyaku2= df_kokyaku.loc[(df_kokyaku["顧客登録日"].dt.month  == this_month)&(df_kokyaku["顧客登録日"].dt.year  == this_year)]
+    df_kokyaku2= df_kokyaku.loc[(df_kokyaku["顧客登録日"].dt.month  == one_month_ago.month)&(df_kokyaku["顧客登録日"].dt.year  == this_year)]
     grouped = df_kokyaku2.groupby("オプトイン").count()
     #grouped = grouped.assign(合計 = grouped.sum(axis=0))
     #grouped = pd.concat([grouped.sum(numeric_only=True)], ignore_index=True)
@@ -121,48 +123,59 @@ this_year_Reg = df.loc[df["顧客登録日"].dt.year  == this_year , "数量"].s
 col3.metric("📓顧客登録日が今年の人の今年の注文件数累計", f"{this_year_Reg:,}件", border=True)
 st.write("-----------------------")
 
+# 先々月
+col1, col2, col3= st.columns(3)
+last2_month_counts = df.loc[df["注文日"].dt.month == two_month_ago.month, "数量"].sum()
+col1.metric(f"📝{two_month_ago.month}月の注文件数", f"{last2_month_counts:,}件", border=True)
+
+last2_month_purchase = df.loc[df["注文日"].dt.month == two_month_ago.month, "合計金額"].sum()
+col2.metric(f"💰{two_month_ago.month}月の注文金額合計", f"{last2_month_purchase:,}円", border=True)
+
+last2_month_Reg = df.loc[(df["顧客登録日"].dt.month  == two_month_ago.month)&(df["顧客登録日"].dt.year  == this_year)&(df["注文日"].dt.month  == two_month_ago.month), "数量"].sum()
+col3.metric(f"📓顧客登録日が{two_month_ago.month}月の人の{two_month_ago.month}月中の注文件数", f"{last2_month_Reg:,}件", border=True)
+
+
+#col1, col2, col3= st.columns(3)
+#last_month_counts = df.loc[df["注文日"].dt.month == one_month_ago.month, "数量"].sum()
+#col1.metric("📝先月の注文件数", f"{last_month_counts:,}件", border=True)
+
+#last_month_purchase = df.loc[df["注文日"].dt.month == one_month_ago.month, "合計金額"].sum()
+#col2.metric("💰先月の注文金額合計", f"{last_month_purchase:,}円", border=True)
+
+#last_month_Reg = df.loc[(df["顧客登録日"].dt.month  == one_month_ago.month)&(df["顧客登録日"].dt.year  == this_year)&(df["注文日"].dt.month  == one_month_ago.month), "数量"].sum()
+#col3.metric(f"📓顧客登録日が{one_month_ago.month}月の人の{one_month_ago.month}月中の注文件数", f"{last_month_Reg:,}件", border=True)
+
 # 先月
 col1, col2, col3= st.columns(3)
 last_month_counts = df.loc[df["注文日"].dt.month == one_month_ago.month, "数量"].sum()
-col1.metric("📝先月の注文件数", f"{last_month_counts:,}件", border=True)
+gap=(last_month_counts-last2_month_counts)
+gap=str(gap)
+col1.metric(f"📝{one_month_ago.month}月の注文件数", f"{last_month_counts:,}件", border=True, delta=gap +"件")
 
 last_month_purchase = df.loc[df["注文日"].dt.month == one_month_ago.month, "合計金額"].sum()
-col2.metric("💰先月の注文金額合計", f"{last_month_purchase:,}円", border=True)
-
-last_month_Reg = df.loc[(df["顧客登録日"].dt.month  == one_month_ago.month)&(df["顧客登録日"].dt.year  == this_year)&(df["注文日"].dt.month  == one_month_ago.month), "数量"].sum()
-col3.metric(f"📓顧客登録日が{one_month_ago.month}月の人の{one_month_ago.month}月中の注文件数", f"{last_month_Reg:,}件", border=True)
-
-# 今月
-col1, col2, col3= st.columns(3)
-this_month_counts = df.loc[df["注文日"].dt.month == this_month, "数量"].sum()
-gap=(this_month_counts-last_month_counts)
-gap=str(gap)
-col1.metric("📝今月の注文件数", f"{this_month_counts:,}件", border=True, delta=gap +"件")
-
-this_month_purchase = df.loc[df["注文日"].dt.month == this_month, "合計金額"].sum()
-gap=this_month_purchase-last_month_purchase
+gap=last_month_purchase-last2_month_purchase
 gap=int(gap)
 gap=f"{gap:,}"
-col2.metric("💰今月の注文金額合計", f"{this_month_purchase:,}円", border=True, delta=gap +"円")
+col2.metric(f"💰{one_month_ago.month}月の注文金額合計", f"{last_month_purchase:,}円", border=True, delta=gap +"円")
 
-this_month_Reg = df.loc[(df["顧客登録日"].dt.month  == this_month)&(df["顧客登録日"].dt.year  == this_year) , "数量"].sum()
-gap=this_month_Reg-last_month_Reg
+last_month_Reg = df.loc[(df["顧客登録日"].dt.month  == one_month_ago.month)&(df["顧客登録日"].dt.year  == this_year) &(df["注文日"].dt.month  == one_month_ago.month), "数量"].sum()
+gap=last_month_Reg-last2_month_Reg
 gap=int(gap)
 gap=f"{gap:,}"
-col3.metric(f"📓顧客登録日が{this_month}月の人の{this_month}月中の注文件数", f"{this_month_Reg:,}件", border=True, delta=gap +"件")
+col3.metric(f"📓顧客登録日が{one_month_ago.month}月の人の{one_month_ago.month}月中の注文件数", f"{last_month_Reg:,}件", border=True, delta=gap +"件")
 
 
 st.write("-----------------------")
 
 col1, col2 =  st.columns([2, 1])
 with col1:
-    st.subheader("当月　日別/パートナー別注文動向（合計金額）")
-    tougetu_df = df[(df["年月"] == this_ym)]
-    pivot_table = pd.pivot_table(tougetu_df , index=["年月日"],columns="新 業務提携者（従属）",values=["合計金額"],  aggfunc="sum", margins=True)
+    st.subheader("先月　日別/パートナー別注文動向（合計金額）")
+    sengetu_df = df[(df["年月"] == last_ym)]
+    pivot_table = pd.pivot_table(sengetu_df , index=["年月日"],columns="新 業務提携者（従属）",values=["合計金額"],  aggfunc="sum", margins=True)
     pivot_table
 with col2:
-    fig = px.bar(tougetu_df .reset_index(), x="日付", y="合計金額", color="新 業務提携者（従属）", title="金額", barmode="stack")
-    fig.update_yaxes(tickformat=",",dtick=200000)#,range=(0, 2000000)
+    fig = px.bar(sengetu_df .reset_index(), x="日付", y="合計金額", color="新 業務提携者（従属）", title="金額", barmode="stack")
+    fig.update_yaxes(tickformat=",")#,range=(0, 2000000)
     fig.update_xaxes(dtick=2,range=(0, 31))
     st.subheader("")
     st.plotly_chart(fig, use_container_width=True)
@@ -177,26 +190,23 @@ with col2:
 
 
 
-
-
-
 col1, col2 =  st.columns([2, 1])
 with col1:
-    st.subheader("当月　日別/パートナー別注文動向（件数）")
-    tougetu_df = df[(df["年月"] == this_ym)]
-    pivot_table = pd.pivot_table(tougetu_df , index=["年月日"],columns="新 業務提携者（従属）",values=["数量"],  aggfunc="sum", margins=True)
+    st.subheader("先月　日別/パートナー別注文動向（件数）")
+    sengetu_df = df[(df["年月"] == last_ym)]
+    pivot_table = pd.pivot_table(sengetu_df , index=["年月日"],columns="新 業務提携者（従属）",values=["数量"],  aggfunc="sum", margins=True)
     pivot_table
 with col2:
-    fig = px.bar(tougetu_df .reset_index(), x="日付", y="数量", color="新 業務提携者（従属）", title="数量", barmode="stack")
-    fig.update_yaxes(tickformat=",",dtick=2)
+    fig = px.bar(sengetu_df .reset_index(), x="日付", y="数量", color="新 業務提携者（従属）", title="数量", barmode="stack")
+    fig.update_yaxes(tickformat=",")
     fig.update_xaxes(dtick=2,range=(0, 31))
     st.subheader("")
     st.plotly_chart(fig, use_container_width=True)
 
 col1, col2 =  st.columns([1, 3])
 with col1:
-    st.subheader("当月注文顧客の流入元")
-    pivot_table = pd.pivot_table(tougetu_df, index=["オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("合計金額",ascending=False)
+    st.subheader("先月注文顧客の流入元")
+    pivot_table = pd.pivot_table(sengetu_df, index=["オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("合計金額",ascending=False)
     pivot_table
     #tougetu_df2 = tougetu_df.groupby("オプトイン").sum(numeric_only=True).iloc[:10].reset_index() #※トップ10だけ表示
     #pivot_table = pd.pivot_table(tougetu_df2, index=["オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("合計金額",ascending=False)
@@ -209,10 +219,10 @@ with col2:
     #fig.update_yaxes(title="顧客流入元",linecolor='black',gridcolor='lightgrey', gridwidth=1, griddash='dot',categoryorder='total ascending',tickfont_size=7)
     #st.plotly_chart(fig, use_container_width=True)
     st.subheader("")
-    tougetu_df2 = tougetu_df.groupby("オプトイン").sum(numeric_only=True).sort_values(by="合計金額", ascending=False).iloc[:20].reset_index() #※トップ20だけ表示
-    fig2 = px.bar(tougetu_df2.sort_values(by="オプトイン", ascending=False), x="合計金額", y="オプトイン", color="オプトイン", orientation="h", title="オプトイン別 当月注文金額合計 TOP20")
+    sengetu_df2 = sengetu_df.groupby("オプトイン").sum(numeric_only=True).sort_values(by="合計金額", ascending=False).iloc[:20].reset_index() #※トップ20だけ表示
+    fig2 = px.bar(sengetu_df2.sort_values(by="オプトイン", ascending=False), x="合計金額", y="オプトイン", color="オプトイン", orientation="h", title="オプトイン別 当月注文金額合計 TOP20")
     fig2.update_layout(showlegend=False,plot_bgcolor="white")
-    fig2.update_xaxes(title="当月注文金額合計",linecolor='black',side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',tickformat=",",dtick=200000)
+    fig2.update_xaxes(title="先月注文金額合計",linecolor='black',side="top",ticks='inside',gridcolor='lightgrey', gridwidth=10, griddash='dot',tickformat=",",dtick=200000)
     fig2.update_yaxes(title="顧客流入元",linecolor='black',gridcolor='lightgrey', gridwidth=1, griddash='dot',categoryorder='total ascending',tickfont_size=10)
     st.plotly_chart(fig2, use_container_width=True)
 
@@ -225,20 +235,20 @@ with col2:
 #st.plotly_chart(fig, use_container_width=True)
 
 st.subheader("上記　オプトインが「(空欄)」のデータ一覧")
-st.dataframe(tougetu_df.loc[(df["オプトイン"]  == "(空欄)") ].reset_index())
+st.dataframe(sengetu_df.loc[(df["オプトイン"]  == "(空欄)") ].reset_index())
 
 col1, col2 =  st.columns([1, 1])
 with col1:
     st.subheader('購入者分布(2024.9~累計)')
     st.map(df[['latitude', 'longitude']])
 with col2:
-    st.subheader('当月　購入者分布')
-    st.map(tougetu_df[['latitude', 'longitude']])
+    st.subheader('先月　購入者分布')
+    st.map(sengetu_df[['latitude', 'longitude']])
 
 
 
-st.subheader('当月　購入単価ヒストグラム')
-fig = px.histogram(tougetu_df, x='商品単価', nbins=100)
+st.subheader('先月　購入単価ヒストグラム')
+fig = px.histogram(sengetu_df, x='商品単価', nbins=100)
 fig.update_yaxes(tickformat=",",dtick=5)
 fig.update_xaxes(dtick=10000) #range=(0, 500000)
 fig.update_layout(bargap=0.1)
@@ -247,9 +257,9 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 
-st.subheader("当月　商品別集計")
-tougetu_df["商品単価"] = tougetu_df["商品単価"].astype(str) 
-pivot_table = pd.pivot_table(tougetu_df , index=["新 業務提携者（従属）","商品名","商品単価"],values=["合計金額","数量"],  aggfunc="sum", margins=True).sort_values("数量",ascending=False)
+st.subheader("先月　商品別集計")
+sengetu_df["商品単価"] = sengetu_df["商品単価"].astype(str) 
+pivot_table = pd.pivot_table(sengetu_df , index=["新 業務提携者（従属）","商品名","商品単価"],values=["合計金額","数量"],  aggfunc="sum", margins=True).sort_values("数量",ascending=False)
 pivot_table
 
 #col1, col2=  st.columns(2)
@@ -258,8 +268,8 @@ pivot_table
 #pivot_table = pd.pivot_table(tougetu_df, index=["新 業務提携者（従属）","オプトイン"],values=["合計金額","数量"],  aggfunc="sum").sort_values("新 業務提携者（従属）",ascending=False)
 #pivot_table
 
-st.subheader("当月　受注経路集計")
-pivot_table = pd.pivot_table(tougetu_df , index=["受注経路"],values=["合計金額","数量"],  aggfunc="sum", margins=True).sort_values("数量",ascending=False)
+st.subheader("先月　受注経路集計")
+pivot_table = pd.pivot_table(sengetu_df , index=["受注経路"],values=["合計金額","数量"],  aggfunc="sum", margins=True).sort_values("数量",ascending=False)
 pivot_table 
 
 st.write("-----------------------")
