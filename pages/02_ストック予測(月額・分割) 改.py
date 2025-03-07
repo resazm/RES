@@ -34,7 +34,7 @@ detail_df = df[(df["計上月"].isin(select_keijo))&(df["タイプ1"].isin(selec
 
 
 fig = px.bar(detail_df, x="計上月", y="合計金額", color="タイプ2", barmode="group")
-fig.update_yaxes(tickformat=",",range=(0, 10000000),dtick=2000000)
+fig.update_yaxes(tickformat=",",dtick=1000000)
 st.subheader("")
 st.plotly_chart(fig, use_container_width=True)
 
@@ -67,13 +67,13 @@ st.write("当月発生「月額会費」注文データ")
 col1, col2,col3 =  st.columns([1,1,1])
 with col1:
    col1.subheader("月額会費")
-   df4=df[(df["タイプ1"] == "月額") & (df["計上月"] == "2025年02月") & (df["タイプ2"] == "全体売上")] # 条件式で抽出
+   df4=df[(df["タイプ1"] == "月額") & (df["計上月"] == "2025年03月") & (df["タイプ2"] == "全体売上")] # 条件式で抽出
    pivot_table = pd.pivot_table(df4, index=(["新 業務提携者（従属）","自社報酬率"]), values=["合計金額"],  aggfunc="sum", margins=True)
    pivot_table
 
 with col2:
    col2.subheader("月額会費（自社取り分）")
-   df5=df[(df["タイプ1"] == "月額") & (df["計上月"] == "2025年02月") & (df["タイプ2"] == "自社分")] # 条件式で抽出
+   df5=df[(df["タイプ1"] == "月額") & (df["計上月"] == "2025年03月") & (df["タイプ2"] == "自社分")] # 条件式で抽出
    pivot_table = pd.pivot_table(df5, index=(["新 業務提携者（従属）","自社報酬率"]), values=["合計金額"],  aggfunc="sum", margins=True)
    pivot_table
 
@@ -113,11 +113,11 @@ pivot_table
 
 st.write("-------------------------------------------------")
 st.write("月額会費データ")
-df = pd.read_excel("./注文データベース202501月額会費ｷｬﾝｾﾙ未入金除き.xlsx", sheet_name="Sheet1", header=0, usecols="A:DZ")
+df = pd.read_excel("./注文データベース202502月額会費ｷｬﾝｾﾙ未入金除き.xlsx", sheet_name="Sheet1", header=0, usecols="A:DZ")
 st.dataframe(df)
 st.write("-------------------------------------------------")
 st.write("分割データ")
-df_2 = pd.read_excel("./注文データベース202501分割ｷｬﾝｾﾙ未入金除き.xlsx", sheet_name="Sheet1", header=0, usecols="A:DZ")
+df_2 = pd.read_excel("./注文データベース202502分割ｷｬﾝｾﾙ未入金除き.xlsx", sheet_name="Sheet1", header=0, usecols="A:DZ")
 st.dataframe(df_2)
 st.write("-------------------------------------------------")
 
