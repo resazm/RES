@@ -51,19 +51,19 @@ st.plotly_chart(fig, use_container_width=True)
 st.write("*******************************")
 st.write("*******************************")
 
-df4 = pd.read_excel("./PEAKONEおまとめ.xlsx", sheet_name="Sheet1-2", header=0, usecols="A:E")
+#df4 = pd.read_excel("./PEAKONEおまとめ.xlsx", sheet_name="Sheet1-2", header=0, usecols="A:E")
 
 
-st.subheader("注文日ベース　分割計上前発生時")
-pivot_table = pd.pivot_table(df4, index=["商品名"], columns=["計上月"], values=["合計金額"],aggfunc="sum", margins=True)
-pivot_table
+#st.subheader("注文日ベース　分割計上前発生時")
+#pivot_table = pd.pivot_table(df4, index=["商品名"], columns=["計上月"], values=["合計金額"],aggfunc="sum", margins=True)
+#pivot_table
 
-fig = px.bar(df4, x="計上月", y="合計金額", color="商品名", barmode="stack")
-fig.update_yaxes(tickformat=",",range=(0, 50000000),dtick=4000000)
-st.subheader("")
-st.plotly_chart(fig, use_container_width=True)
+#fig = px.bar(df4, x="計上月", y="合計金額", color="商品名", barmode="stack")
+#fig.update_yaxes(tickformat=",",range=(0, 50000000),dtick=4000000)
+#st.subheader("")
+#st.plotly_chart(fig, use_container_width=True)
 
 
 
-df4 = pd.read_excel("./PEAKONEおまとめ.xlsx", sheet_name="まとめ継続", header=0, usecols="A:AZ")
-st.dataframe(df4)
+#df4 = pd.read_excel("./PEAKONEおまとめ.xlsx", sheet_name="まとめ継続", header=0, usecols="A:AZ")
+#st.dataframe(df4)
