@@ -21,7 +21,7 @@ st.title("■月額会費・分割商品・おまとめ継続　売上予測")
 
 st.write("")
 
-ki9 = ["2025年02月", "2025年03月", "2025年04月", "2025年05月", "2025年06月", "2025年07月"] 
+ki9 = ["2025年03月", "2025年04月", "2025年05月", "2025年06月", "2025年07月", "2025年08月", "2025年09月", "2025年10月"] 
 
 #全体分
 df= pd.read_excel("./月額_分割統合.xlsx", sheet_name="結合+おまとめ", header=0, usecols="A:G")
@@ -37,21 +37,18 @@ select_departments = st.multiselect("表示会社", options=departments, default
 
 detail_df = df[(df["計上月"].isin(select_keijo))&(df["タイプ1"].isin(select_type1))&(df["新 業務提携者（従属）"].isin(select_departments))]
 
-fig = px.bar(detail_df, x="計上月", y="合計金額", color="タイプ2", barmode="group")
-fig.update_yaxes(tickformat=",",range=(0, 20000000),dtick=2000000)
-st.subheader("")
-st.plotly_chart(fig, use_container_width=True)
-
-
-
-
-
-df1=detail_df[(detail_df["タイプ2"] == "全体売上")] # 条件式で抽出
-
-fig = px.bar(df1, x="計上月", y="合計金額", color="タイプ1", barmode="stack")
-fig.update_yaxes(tickformat=",",range=(0, 20000000),dtick=2000000)
-st.subheader("")
-st.plotly_chart(fig, use_container_width=True)
+col1, col2 =  st.columns([1, 1])
+with col1:
+   fig = px.bar(detail_df, x="計上月", y="合計金額", color="タイプ2", barmode="group")
+   fig.update_yaxes(tickformat=",",range=(0, 20000000),dtick=2000000)
+   st.subheader("")
+   st.plotly_chart(fig, use_container_width=True)
+with col2:
+   df1=detail_df[(detail_df["タイプ2"] == "全体売上")] # 条件式で抽出
+   fig = px.bar(df1, x="計上月", y="合計金額", color="タイプ1", barmode="stack")
+   fig.update_yaxes(tickformat=",",range=(0, 20000000),dtick=2000000)
+   st.subheader("")
+   st.plotly_chart(fig, use_container_width=True)
 
 col1, col2 =  st.columns([1, 1])
 #全体分テーブル
