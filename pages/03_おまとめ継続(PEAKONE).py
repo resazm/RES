@@ -21,7 +21,7 @@ st.write("※次回のおまとめ継続更新で解約せずに更新した場�
 #全体分
 df1 = pd.read_excel("./PEAKONEおまとめ.xlsx", sheet_name="Sheet11", header=0, usecols="A:E")
 
-
+df1["計上月"] = df1["計上月"].dt.strftime('%Y/%m')
 
 st.subheader("役務提供月/計上月ベース")
 df2=df1[(df1["タイプ2"] == "全体売上")] # 条件式で抽出

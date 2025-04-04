@@ -21,12 +21,16 @@ st.title("■月額会費・分割商品・おまとめ継続　売上予測")
 
 st.write("")
 
-ki9 = ["2025年03月", "2025年04月", "2025年05月", "2025年06月", "2025年07月", "2025年08月", "2025年09月", "2025年10月"] 
+ki9 = ["2025年04月", "2025年05月", "2025年06月", "2025年07月", "2025年08月", "2025年09月", "2025年10月", "2025年11月"] 
 
 #全体分
 df= pd.read_excel("./月額_分割統合.xlsx", sheet_name="結合+おまとめ", header=0, usecols="A:G")
+
+df["計上月"] = df["計上月"].dt.strftime('%Y/%m')
+
 keijo = df["計上月"].unique()
-select_keijo = st.multiselect("計上月", options=keijo,default=ki9)
+#select_keijo = st.multiselect("計上月", options=keijo,default=ki9)
+select_keijo = st.multiselect("計上月", options=keijo,default=keijo)
 
 type1 = df["タイプ1"].unique()
 select_type1= st.multiselect("タイプ1", options=type1,default=type1)
