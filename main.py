@@ -1,6 +1,7 @@
 import streamlit as st
 
-st.set_page_config(page_title="Streamlit App", page_icon="Bar Chart")
+st.set_page_config(page_title="Streamlit App", page_icon="Bar Chart",initial_sidebar_state="collapsed")
+
 
 st.title("RES売上データ集計")
 st.write("written in Python by higashi 2024.2")
