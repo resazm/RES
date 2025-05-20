@@ -9,7 +9,8 @@ import unicodedata
 st.set_page_config(page_title="Yahoo!ニューススクレイピング", layout="wide", initial_sidebar_state="collapsed")
 
 st.title("📡 メディア別ニュース取得ツール")
-st.write("🔍 下記キーワードで記事をスクレイピングします（編集可）")
+st.write("🔍 下記、指定したキーワードで記事をスクレイピングします（編集可）")
+st.write("🔍 指定キーワードが記事のタイトルに含まれるものを取得します。　(東）")
 
 # メディアとURL設定
 media_sources = {
