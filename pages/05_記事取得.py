@@ -7,7 +7,7 @@ import time
 import unicodedata
 
 # ページ設定
-st.set_page_config(page_title="Yahoo!ニューススクレイピング", layout="wide")
+st.set_page_config(page_title="Yahoo!ニューススクレイピング", layout="wide",initial_sidebar_state="collapsed")
 
 st.title("📡 メディア別ニュース取得ツール")
 st.write("トレーダーズ・ウェブ:[大引け概況]")
