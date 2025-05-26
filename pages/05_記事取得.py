@@ -11,8 +11,9 @@ import html
 # ページ設定
 st.set_page_config(page_title="Yahoo!ニューススクレイピング", layout="wide", initial_sidebar_state="collapsed")
 
-st.title("\U0001f4e1 メディア別ニュース取得ツール")
-st.write("対象メディア：トレーダーズ・ウェブ、ウエルスアドバイザー、株探、ロイター")
+st.title("📡 メディア別ニュース取得ツール")
+st.write("🔍 各メディアごとにキーワード・ページ数を自由に設定して記事をスクレイピングできます。")
+st.write("　指定キーワードが記事のタイトル、本文、そのどちらかに含まれるものを取得します。2025/5/20 東作成")
 
 # 検索対象の選択
 search_mode = st.radio(
