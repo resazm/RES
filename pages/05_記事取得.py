@@ -4,15 +4,25 @@ from bs4 import BeautifulSoup
 import re
 import time
 import unicodedata
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import datetime
+import html
 
 # ページ設定
 st.set_page_config(page_title="Yahoo!ニューススクレイピング", layout="wide", initial_sidebar_state="collapsed")
 
-st.title("📡 メディア別ニュース取得ツール")
-st.write("🔍 各メディアごとにキーワード・ページ数を自由に設定して記事をスクレイピングできます。")
-st.write("　指定キーワードが記事のタイトルに含まれるものを取得します。2025/5/20 東作成")
+st.title("\U0001f4e1 メディア別ニュース取得ツール")
+st.write("対象メディア：トレーダーズ・ウェブ、ウエルスアドバイザー、株探、ロイター")
 
-# メディアとURL
+# 検索対象の選択
+search_mode = st.radio(
+    "\U0001f50d キーワードの検索対象を選択",
+    ["タイトルに含まれる", "本文に含まれる", "どちらかに含まれる"],
+    index=2,  # ←「どちらかに含まれる」を初期選択
+    horizontal=True
+)
+
+# メディア設定
 media_sources = {
     "トレーダーズ・ウェブ": "https://finance.yahoo.co.jp/news/media/dzh",
     "ウエルスアドバイザー": "https://finance.yahoo.co.jp/news/media/mosf",
@@ -22,106 +32,171 @@ media_sources = {
 
 # デフォルトキーワード
 default_keywords = {
-    "トレーダーズ・ウェブ": ["大引け概況"],
-    "ウエルスアドバイザー": ["日経平均は"],
-    "株探": ["日経平均"],
-    "ロイター": ["午前の日経平均は"]
+    "トレーダーズ・ウェブ": "大引け概況",
+    "ロイター": "午前の日経平均は",
+    "ウエルスアドバイザー": "日経平均は",
+    "株探": "値上がり"
 }
 
-# 🔧 メディアごとの設定（チェック、キーワード、ページ数）
-selected_media = {}
-custom_keywords = {}
-custom_pages = {}
-
-st.markdown("### ✅ メディア選択・キーワード・ページ数の設定")
-
-media_list = list(media_sources.keys())
+# メディア別設定フォーム
+st.markdown("### \U0001f4dd メディア選択・キーワード・ページ数・公開時間フィルタの設定")
 media_cols = st.columns(4)
+selected_media = {}
 
-for idx, media in enumerate(media_list):
+for idx, (media, url) in enumerate(media_sources.items()):
     with media_cols[idx]:
-        st.markdown(f"#### {media}")
-        use_media = st.checkbox("このメディアを取得", value=True, key=f"use_{media}")
-        if use_media:
-            url = media_sources[media]
-            selected_media[media] = url
+        enabled = st.checkbox(f" {media}", value=True)
+        if enabled:
+            keyword_input = st.text_input(f"キーワード ({media})", value=default_keywords[media], key=f"kw_{media}")
+            page_num = st.number_input(f"ページ数 ({media})", min_value=1, max_value=10, value=1, key=f"pg_{media}")
+            time_default = "12:00" if media == "ロイター" else ""
+            time_filter = st.text_input(f"公開時間フィルタ（HH:MM以降、空欄で無効） ({media})", value=time_default, key=f"time_{media}")
+            selected_media[media] = {
+                "url": url,
+                "keywords": [kw.strip() for kw in keyword_input.split(",") if kw.strip()],
+                "pages": page_num,
+                "time_filter": time_filter.strip()
+            }
 
-            # キーワード入力
-            default_kw = ", ".join(default_keywords[media])
-            user_input = st.text_input("📝 キーワード（カンマ区切り）", value=default_kw, key=f"kw_{media}")
-            custom_keywords[media] = [kw.strip() for kw in user_input.split(",") if kw.strip()]
+def parse_time(pub_time_str):
+    # 公開日時テキストから時刻を抽出（例："15:45"をdatetime.timeオブジェクトで返す）
+    m = re.search(r'(\d{1,2}):(\d{2})', pub_time_str)
+    if m:
+        hour, minute = int(m.group(1)), int(m.group(2))
+        return datetime.time(hour, minute)
+    return None
 
-            # ページ数指定
-            pages = st.number_input("📄 検索ページ数", min_value=1, max_value=20, value=3, step=1, key=f"pg_{media}")
-            custom_pages[media] = pages
+def highlight_keywords(text, keywords):
+    # キーワードをHTMLでハイライト（背景黄色）して返す
+    def repl(m):
+        return f"<mark>{html.escape(m.group(0))}</mark>"
+    for kw in keywords:
+        # 正規表現でキーワードをエスケープし全て大文字・小文字区別なく検索
+        pattern = re.compile(re.escape(kw), re.IGNORECASE)
+        text = pattern.sub(repl, text)
+    return text
 
-# スクレイピング関数
-def fetch_news(keywords_dict, pages_dict, active_sources):
-    all_results = {}
+def fetch_article_detail(link):
+    try:
+        res_detail = requests.get(link, timeout=10)
+        soup_detail = BeautifulSoup(res_detail.content, "html.parser")
 
-    for media_name, base_url in active_sources.items():
-        st.write(f"📰 {media_name} の記事を取得中...")
-        keywords = keywords_dict.get(media_name, [])
-        max_page = pages_dict.get(media_name, 1)
-        media_news = []
+        time_elem = soup_detail.find("p", class_=re.compile("time"))
+        pub_time = time_elem.text.strip().replace("配信", "").strip() if time_elem else "不明"
 
-        for page in range(1, max_page + 1):
-            url = base_url if page == 1 else f"{base_url}?vip=off&page={page}"
-            try:
-                req = requests.get(url, timeout=10)
-                soup = BeautifulSoup(req.content, "html.parser")
-                elems = soup.find_all(href=re.compile("finance.yahoo.co.jp/news/detail"))
+        body_elem = soup_detail.find(class_=re.compile("textArea"))
+        body = unicodedata.normalize('NFKC', body_elem.text.strip()) if body_elem else ""
 
-                for elem in elems:
+        return pub_time, body
+    except Exception as e:
+        print(f"Error fetching detail: {e}")
+        return "不明", ""
+
+def process_media(media_name, info, keywords, search_mode):
+    base_url = info["url"]
+    max_page = info["pages"]
+    time_filter_str = info.get("time_filter", "")
+
+    if time_filter_str:
+        try:
+            filter_hour, filter_minute = map(int, time_filter_str.split(":"))
+            filter_time = datetime.time(filter_hour, filter_minute)
+        except:
+            filter_time = None
+    else:
+        filter_time = None
+
+    media_news = []
+
+    for page in range(1, max_page + 1):
+        url = base_url if page == 1 else f"{base_url}?vip=off&page={page}"
+        try:
+            req = requests.get(url, timeout=10)
+            soup = BeautifulSoup(req.content, "html.parser")
+            elems = soup.find_all(href=re.compile("finance.yahoo.co.jp/news/detail"))
+
+            # マルチスレッドで記事詳細を取得
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                future_to_elem = {executor.submit(fetch_article_detail, elem.attrs['href']): elem for elem in elems}
+                for future in as_completed(future_to_elem):
+                    elem = future_to_elem[future]
                     title = elem.text.strip()
                     link = elem.attrs['href']
-                    pub_time = "不明"
 
-                    if any(kw in title for kw in keywords):
-                        try:
-                            res_detail = requests.get(link, timeout=10)
-                            soup_detail = BeautifulSoup(res_detail.content, "html.parser")
+                    try:
+                        pub_time, body = future.result()
+                    except:
+                        pub_time, body = "不明", ""
 
-                            time_elem = soup_detail.find("p", class_=re.compile("time"))
-                            if time_elem:
-                                pub_time = time_elem.text.strip().replace("配信", "").strip()
+                    # 公開時間フィルタ判定
+                    pub_time_obj = parse_time(pub_time)
+                    if filter_time and pub_time_obj and pub_time_obj < filter_time:
+                        continue  # 指定時間より前の記事はスキップ
 
-                            body_elem = soup_detail.find(class_=re.compile("textArea"))
-                            if body_elem:
-                                body = unicodedata.normalize('NFKC', body_elem.text.strip())
-                                media_news.append({
-                                    "タイトル": title,
-                                    "URL": link,
-                                    "公開日時": pub_time,
-                                    "本文": body
-                                })
-                            time.sleep(1)
-                        except Exception as e:
-                            print(f"Error fetching detail page: {e}")
-            except Exception as e:
-                print(f"Error fetching list page: {e}")
+                    # キーワードマッチ判定
+                    keyword_matched = False
+                    if search_mode == "タイトルに含まれる":
+                        keyword_matched = any(kw in title for kw in keywords)
+                    elif search_mode == "本文に含まれる":
+                        keyword_matched = any(kw in body for kw in keywords)
+                    elif search_mode == "どちらかに含まれる":
+                        keyword_matched = any(kw in title or kw in body for kw in keywords)
 
-        all_results[media_name] = media_news
+                    if keyword_matched:
+                        # キーワードハイライト適用（HTMLマークアップ）
+                        title_hl = highlight_keywords(html.escape(title), keywords)
+                        body_hl = highlight_keywords(html.escape(body), keywords)
 
-    return all_results
+                        media_news.append({
+                            "タイトル": title_hl,
+                            "URL": link,
+                            "公開日時": pub_time,
+                            "本文": body_hl
+                        })
+
+            time.sleep(1)
+        except Exception as e:
+            print(f"Error fetching list page: {e}")
+
+    return media_news
 
 # ニュース取得ボタン
-if st.button("🧲 ニュースを取得"):
-    if not selected_media:
-        st.warning("⚠️ 少なくとも1つのメディアを選択してください。")
-    else:
-        results = fetch_news(custom_keywords, custom_pages, selected_media)
+if st.button("\U0001fa99 ニュースを取得"):
+    results = {}
+    # 並列で各メディア処理
+    with ThreadPoolExecutor(max_workers=len(selected_media)) as executor:
+        futures = {
+            executor.submit(process_media, media, info, info["keywords"], search_mode): media
+            for media, info in selected_media.items()
+        }
+        for future in as_completed(futures):
+            media_name = futures[future]
+            try:
+                results[media_name] = future.result()
+            except Exception as e:
+                results[media_name] = []
+                st.error(f"{media_name} の処理中にエラーが発生しました: {e}")
 
-        cols = st.columns(len(selected_media))
-        for idx, media_name in enumerate(selected_media.keys()):
-            with cols[idx]:
-                st.subheader(media_name)
-                articles = results.get(media_name, [])
-                if not articles:
-                    st.write("📭 該当記事なし")
-                else:
-                    for article in articles:
-                        st.markdown(f"### [{article['タイトル']}]({article['URL']})")
-                        st.caption(f"🕒 公開日時: {article['公開日時']}")
-                        st.write(article['本文'])
-                        st.markdown("---")
+    if not results:
+        st.warning("⚠️ 取得対象のメディアがありません。")
+
+    media_list = list(results.keys())
+    cols = st.columns(len(media_list)) if media_list else []
+
+    fixed_order = ["トレーダーズ・ウェブ", "ウエルスアドバイザー", "株探", "ロイター"]
+    active_media = [m for m in fixed_order if m in results]
+    cols = st.columns(len(active_media))
+
+
+    for idx, media_name in enumerate(active_media):
+        with cols[idx]:
+            st.subheader(media_name)
+            articles = results.get(media_name, [])
+            if not articles:
+                st.write("\U0001f4ed 該当記事なし")
+            else:
+                for article in articles:
+                    st.markdown(f"### <a href='{article['URL']}' target='_blank'>{article['タイトル']}</a>", unsafe_allow_html=True)
+                    st.caption(f"\U0001f552 公開日時: {article['公開日時']}")
+                    st.markdown(article['本文'].replace("\n", "<br>"), unsafe_allow_html=True)
+                    st.markdown("---")
