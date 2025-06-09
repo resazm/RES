@@ -44,7 +44,7 @@ pivot_table = pd.pivot_table(df3, index=["商品名"], columns=["計上月"], va
 pivot_table
 
 fig = px.bar(df3, x="計上月", y="合計金額", color="商品名", barmode="stack")
-fig.update_yaxes(tickformat=",",range=(0, 6000000),dtick=1000000)
+fig.update_yaxes(tickformat=",",range=(0, 8000000),dtick=1000000)
 st.subheader("")
 st.plotly_chart(fig, use_container_width=True)
 
