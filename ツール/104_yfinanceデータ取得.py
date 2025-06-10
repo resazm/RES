@@ -3,7 +3,7 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
 
-st.title("株価ローソク足チャート（1段カラム変換済）")
+st.title("株価ローソク足チャート（表示改善版）")
 
 # ユーザー入力
 ticker = st.text_input("銘柄コードを入力（例：AAPL または 7974.T）", value="7974.T")
@@ -25,11 +25,14 @@ if st.button("株価データを取得"):
             # インデックスをリセットして Date カラムを追加
             df.reset_index(inplace=True)
 
+            # ✅ 日付を文字列（YYYY-MM-DD）に変換して見やすく
+            df['Date'] = df['Date'].dt.strftime('%Y-%m-%d')
+
             # 移動平均線（SMA20）計算
             df['SMA20'] = df['Close'].rolling(window=20).mean()
 
             # 表示用
-            st.subheader("整形済みのデータ（1段カラム）")
+            st.subheader("整形済みのデータ（1段カラム、日付整形済）")
             st.write(df.head())
 
             # ローソク足チャート + SMA20線
@@ -53,11 +56,18 @@ if st.button("株価データを取得"):
                 )
             ])
 
+            # ✅ x軸の隙間・過密ラベルを改善
             fig.update_layout(
                 title=f"{ticker} のローソク足チャート（SMA20付き）",
                 xaxis_title="日付",
                 yaxis_title="価格",
-                xaxis_rangeslider_visible=False
+                xaxis_rangeslider_visible=False,
+                xaxis=dict(
+                    type='category',     # 隙間除去
+                    #tickmode='auto',     # 自動で間引き
+                    #nticks=40,           # 最大表示ラベル数
+                    #tickangle=-45        # ラベルを斜め表示
+                )
             )
 
             st.plotly_chart(fig, use_container_width=True)
