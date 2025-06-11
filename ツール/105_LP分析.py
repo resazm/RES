@@ -6,7 +6,16 @@ import io
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import time
-#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+import platform
+import shutil
+
+# --- OSに応じたTesseractパスの設定 ---
+if platform.system() == "Windows":
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+# --- Tesseractインストール確認 ---
+if not shutil.which(pytesseract.pytesseract.tesseract_cmd if platform.system() == "Windows" else "tesseract"):
+    st.error("❌ Tesseract OCR が見つかりません。環境に応じてインストールまたはPATH設定を確認してください。")
 
 # ページ設定
 st.set_page_config(
