@@ -6,7 +6,7 @@ import io
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import time
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+#pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # ページ設定
 st.set_page_config(
