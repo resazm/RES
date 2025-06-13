@@ -166,6 +166,27 @@ def fetch_companies_alternative_approach(date_str):
 
     return []
 
+def display_results(companies, input_date):
+    """結果表示の共通関数"""
+    if companies:
+        month = input_date.strftime("%m").lstrip("0")
+        day = input_date.strftime("%d").lstrip("0")
+        weekday_jp = {"Mon": "月", "Tue": "火", "Wed": "水", "Thu": "木", "Fri": "金", "Sat": "土", "Sun": "日"}
+        weekday = weekday_jp[input_date.strftime("%a")]
+        display_date = f"{month}/{day}({weekday})"
+
+        output_text_lines = []
+        output_text_lines.append(f"□{display_date}の決算発表企業")
+        output_text_lines.append("")
+        for c in companies[:15]:
+            output_text_lines.append(c)
+        if len(companies) > 15:
+            output_text_lines.append("")
+            output_text_lines.append(f"<他{len(companies) - 15}件>")
+        st.code("\n".join(output_text_lines), language="text")
+    else:
+        st.warning("決算予定表が見つかりませんでした。別の方式を試してください。")
+
 # Streamlit UI
 input_date = st.date_input("日付を選択してください")
 
@@ -191,27 +212,6 @@ with col3:
         with st.spinner("企業情報を取得中（プロキシヘッダー方式）..."):
             companies = fetch_companies_with_proxy_headers(formatted_date)
         display_results(companies, input_date)
-
-def display_results(companies, input_date):
-    """結果表示の共通関数"""
-    if companies:
-        month = input_date.strftime("%m").lstrip("0")
-        day = input_date.strftime("%d").lstrip("0")
-        weekday_jp = {"Mon": "月", "Tue": "火", "Wed": "水", "Thu": "木", "Fri": "金", "Sat": "土", "Sun": "日"}
-        weekday = weekday_jp[input_date.strftime("%a")]
-        display_date = f"{month}/{day}({weekday})"
-
-        output_text_lines = []
-        output_text_lines.append(f"□{display_date}の決算発表企業")
-        output_text_lines.append("")
-        for c in companies[:15]:
-            output_text_lines.append(c)
-        if len(companies) > 15:
-            output_text_lines.append("")
-            output_text_lines.append(f"<他{len(companies) - 15}件>")
-        st.code("\n".join(output_text_lines), language="text")
-    else:
-        st.warning("決算予定表が見つかりませんでした。別の方式を試してください。")
 
 # デバッグ情報
 st.write("---")
