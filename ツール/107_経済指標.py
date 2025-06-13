@@ -129,7 +129,8 @@ class EconomicCalendarScraper:
             'ロシア': '露', 'Russia': '露',
             '香港': '香港', 
             '南アフリカ': '南ア', 
-            'シンガポール': 'シンガポール'
+            'シンガポール': 'シンガポール',
+            'トルコ': 'トルコ'
             # 必要に応じて追加
         }
         return country_abbr.get(country_name, '')
@@ -259,7 +260,9 @@ if selected_date:
         if not japan_daily.empty:
             output_text += "＜日本＞\n"
             for index, row in japan_daily.iterrows():
-                output_text += f"(日){row['指標名']}({row['時刻']})\n"
+                # 時刻が'--:--'の場合は時刻部分を省略
+                time_display_jp = f"({row['時刻']})" if row['時刻'] != '--:--' else ""
+                output_text += f"(日){row['指標名']}{time_display_jp}\n"
         else:
             output_text += "＜日本＞\nこの日付の日本の経済指標はありません。\n" # 表示メッセージも調整
             
@@ -271,7 +274,9 @@ if selected_date:
             output_text += "＜海外＞\n"
             for index, row in overseas_daily.iterrows():
                 country_abbr = scraper.get_country_abbreviation(row['国'])
-                output_text += f"({country_abbr}){row['指標名']}({row['時刻']})\n"
+                # 時刻が'--:--'の場合は時刻部分を省略
+                time_display_overseas = f"({row['時刻']})" if row['時刻'] != '--:--' else ""
+                output_text += f"({country_abbr}){row['指標名']}{time_display_overseas}\n"
         else:
             output_text += "＜海外＞\nこの日付の海外の経済指標はありません。\n" # 表示メッセージも調整
             
