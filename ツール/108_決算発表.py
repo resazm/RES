@@ -9,7 +9,7 @@ st.title("決算発表予定企業検索")
 def fetch_companies(date_str):
     url = f"https://www.traders.co.jp/market_jp/earnings_calendar/all/all/1?term={date_str}"
     headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36', # 例: 最新のChromeのUser-Agentに更新
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36', # 例: 最新のChromeのUser-Agentに更新
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
     'Accept-Language': 'ja-JP,ja;q=0.9,en-US;q=0.8,en;q=0.7',
     'Referer': 'https://www.google.com/', # Google検索からの流入を偽装
