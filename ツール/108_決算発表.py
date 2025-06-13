@@ -5,7 +5,7 @@ import re
 import time
 import random
 
-st.title("決算発表予定企業検索")
+st.title("決算発表予定企業検索(アクセス制限多発につき実用困難)")
 
 def get_random_headers():
     """ランダムなUser-Agentとヘッダーを返す"""
