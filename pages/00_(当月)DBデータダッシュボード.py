@@ -230,7 +230,7 @@ st.dataframe(tougetu_df.loc[(df["オプトイン"]  == "(空欄)") ].reset_index
 
 col1, col2 =  st.columns([1, 1])
 with col1:
-    st.subheader('購入者分布(2024.9~累計)')
+    st.subheader('購入者分布(累計)')
     st.map(df[['latitude', 'longitude']])
 with col2:
     st.subheader('当月　購入者分布')
