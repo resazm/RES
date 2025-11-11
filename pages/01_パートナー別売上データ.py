@@ -73,7 +73,7 @@ detail_df = df[(df["年月"].isin(select_keijo)) & (df["会社"].isin(select_dep
 
 month_group_df = detail_df.groupby(["年月", "会社"]).sum(numeric_only=True)
 fig = px.bar(month_group_df.reset_index(), x="年月", y="合計金額", color="会社", title="月別金額")
-fig.update_yaxes(tickformat=",",range=(0, 100000000),dtick=5000000)
+fig.update_yaxes(tickformat=",",dtick=5000000)
 #col1.subheader("月別計上")
 col1.plotly_chart(fig, use_container_width=True)
 

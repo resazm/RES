@@ -105,7 +105,7 @@ with col1:
 with col2:
    month_group_df2 = df6.groupby(["新 業務提携者（従属）"]).sum(numeric_only=True)
    fig = px.bar(month_group_df2.reset_index(), x="新 業務提携者（従属）", y="合計金額",color="新 業務提携者（従属）", title="")
-   fig.update_yaxes(tickformat=",",range=(0, 6000000),dtick=1000000)
+   fig.update_yaxes(tickformat=",")
    st.plotly_chart(fig, use_container_width=True)
 st.subheader("分割（自社取り分）")
 df7=df[(df["タイプ1"] == "分割")  & (df["タイプ2"] == "自社分")] # 条件式で抽出
