@@ -34,86 +34,151 @@ def search_xpath(html_text, xpath_list):
     return results
 
 def build_yahoo_ranking(url, top_n):
-    html_text = requests.get(url).text
+    """Yahoo!ファイナンスのランキングを取得（新HTML構造対応）"""
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+    response = requests.get(url, headers=headers)
+    tree = html.fromstring(response.text)
+    
     result = ''
-    for i in range(1, top_n + 1):
-        xpaths = [
-            f'//*[@id="item"]/div/table/tbody/tr[{i}]/td[1]/ul/li[1]',
-            f'//*[@id="item"]/div/table/tbody/tr[{i}]/td[1]/a',
-            f'//*[@id="item"]/div/table/tbody/tr[{i}]/td[3]/span[2]/span/span[1]'
-        ]
-        code, name, rate_raw = search_xpath(html_text, xpaths)
-        rate = rate_raw if '%' in rate_raw else f'{rate_raw}%'
+    
+    # tbody内のtr要素を取得
+    rows = tree.xpath('//tbody/tr')
+    
+    for i in range(min(top_n, len(rows))):
+        row = rows[i]
+        
+        # 銘柄名（最初のtd内のaタグ）
+        name_elements = row.xpath('.//td[1]//a/text()')
+        name = name_elements[0].strip() if name_elements else ''
+        
+        # コード（最初のtd内のliタグ）
+        code_elements = row.xpath('.//td[1]//li/text()')
+        code = code_elements[0].strip() if code_elements else ''
+        
+        # 騰落率（3番目のtd内の2つ目のStyledNumber__value__3rXW）
+        rate_elements = row.xpath('.//td[3]//span[@class="StyledNumber__value__3rXW"]/text()')
+        if len(rate_elements) >= 2:
+            rate_text = rate_elements[1].strip()
+            # %記号の確認
+            has_percent = row.xpath('.//td[3]//span[@class="StyledNumber__suffix__2SD5" and text()="%"]')
+            rate = f"{rate_text}%" if has_percent else rate_text
+        else:
+            rate = ''
+        
         if code and name and rate:
-            result += f'{i}位<{code}>{name}({rate})\n'
+            result += f'{i + 1}位<{code}>{name}({rate})\n'
+    
     return result
 
 def build_yahoo_ranking_html(url, top_n, title):
-    html_text = requests.get(url).text
-    rows = ''
-    for i in range(1, top_n + 1):
-        xpaths = [
-            f'//*[@id="item"]/div/table/tbody/tr[{i}]/td[1]/ul/li[1]',
-            f'//*[@id="item"]/div/table/tbody/tr[{i}]/td[1]/a',
-            f'//*[@id="item"]/div/table/tbody/tr[{i}]/td[3]/span[2]/span/span[1]'
-        ]
-        code, name, rate_raw = search_xpath(html_text, xpaths)
-        if not code or not name or not rate_raw:
-            continue
-        rate = rate_raw if '%' in rate_raw else rate_raw + '%'
-        rows += f"<tr>\n<td>{i}位</td>\n<td>{name}</td>\n<td>{code}</td>\n<td>{rate}</td>\n</tr>\n"
+    """Yahoo!ファイナンスのランキングをHTML形式で取得（新HTML構造対応）"""
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+    response = requests.get(url, headers=headers)
+    tree = html.fromstring(response.text)
+    
+    rows_html = ''
+    
+    # tbody内のtr要素を取得
+    rows = tree.xpath('//tbody/tr')
+    
+    for i in range(min(top_n, len(rows))):
+        row = rows[i]
+        
+        # 銘柄名（最初のtd内のaタグ）
+        name_elements = row.xpath('.//td[1]//a/text()')
+        name = name_elements[0].strip() if name_elements else ''
+        
+        # コード（最初のtd内のliタグ）
+        code_elements = row.xpath('.//td[1]//li/text()')
+        code = code_elements[0].strip() if code_elements else ''
+        
+        # 騰落率（3番目のtd内の2つ目のStyledNumber__value__3rXW）
+        rate_elements = row.xpath('.//td[3]//span[@class="StyledNumber__value__3rXW"]/text()')
+        if len(rate_elements) >= 2:
+            rate_text = rate_elements[1].strip()
+            # %記号の確認
+            has_percent = row.xpath('.//td[3]//span[@class="StyledNumber__suffix__2SD5" and text()="%"]')
+            rate = f"{rate_text}%" if has_percent else rate_text
+        else:
+            rate = ''
+        
+        if code and name and rate:
+            rows_html += f"<tr>\n<td>{i + 1}位</td>\n<td>{name}</td>\n<td>{code}</td>\n<td>{rate}</td>\n</tr>\n"
 
     return f"""
 <h2 class="widget-title"> {title}</h2>
 <p class="date">{get_today_for_wordpress()}</p>
 <table class="krank rank_d" style="height: auto;" width="358">
 <tbody>
-{rows}</tbody>
+{rows_html}</tbody>
 </table>
 """
 
-def build_kabutan_ranking(url, top_n):
-    html_text = requests.get(url).text
+def build_minkabu_contribution(url, div_index, top_n):
+    """みんかぶの寄与度ランキングを取得"""
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+    response = requests.get(url, headers=headers)
+    tree = html.fromstring(response.text)
+    
     result = ''
-    for i in range(1, top_n + 1):
-        code_xpath = f'//*[@id="main"]/div[2]/table/tbody/tr[{i}]/td[1]/a'
-        name_xpath = f'//*[@id="main"]/div[2]/table/tbody/tr[{i}]/th'
-        rate_xpath = f'//*[@id="main"]/div[2]/table/tbody/tr[{i}]/td[8]/span'
-
-        code_html, name, rate_raw = search_xpath(html_text, [code_xpath, name_xpath, rate_xpath])
-        match = re.search(r'(\d+)', code_html)
-        code = match.group(1) if match else code_html
-        rate = rate_raw if '%' in rate_raw else f'{rate_raw}%'
-        if code and name and rate:
-            result += f'{i}位<{code}>{name}({rate})\n'
+    
+    # div[1]が寄与度上位、div[2]が寄与度下位
+    # tr[1]はヘッダーなので、tr[2]から開始
+    for i in range(2, top_n + 2):
+        # XPath作成
+        code_xpath = f'//*[@id="contribution_content"]/div[1]/div[{div_index}]/div[2]/table/tbody/tr[{i}]/td[1]/div[1]'
+        name_xpath = f'//*[@id="contribution_content"]/div[1]/div[{div_index}]/div[2]/table/tbody/tr[{i}]/td[1]/div[2]/a'
+        contrib_xpath = f'//*[@id="contribution_content"]/div[1]/div[{div_index}]/div[2]/table/tbody/tr[{i}]/td[3]/div[2]/span'
+        
+        code_elements = tree.xpath(code_xpath)
+        name_elements = tree.xpath(name_xpath)
+        contrib_elements = tree.xpath(contrib_xpath)
+        
+        code = code_elements[0].text_content().strip().replace(' ', '') if code_elements else ''
+        name = name_elements[0].text_content().strip() if name_elements else ''
+        contribution = contrib_elements[0].text_content().strip() if contrib_elements else ''
+        
+        # 括弧が既にある場合は削除
+        if contribution.startswith('(') and contribution.endswith(')'):
+            contribution = contribution[1:-1]
+        
+        if code and name and contribution:
+            result += f'{i - 1}位<{code}>{name}({contribution})\n'
+    
     return result
 
 def get_ranking_text():
     date = get_today()
-    output = f'★ {date} のランキング （15:30現在）\n└────────────────\n'
+    output = f'★{date} のランキング （15:30現在）\n└────────────────\n'
 
     up_url = 'https://finance.yahoo.co.jp/stocks/ranking/up?market=all'
-    output += f'\n□ {date} 値上がり率\n\n'
+    output += f'\n□{date} 値上がり率\n\n'
     output += build_yahoo_ranking(up_url, 5)
 
     down_url = 'https://finance.yahoo.co.jp/stocks/ranking/down?market=all&term=daily'
-    output += f'\n□ {date} 値下がり率\n\n'
+    output += f'\n□{date} 値下がり率\n\n'
     output += build_yahoo_ranking(down_url, 5)
 
-    kiyodo_up_url = 'https://kabutan.jp/warning/?mode=8_1&market=0&capitalization=-1&stc=kiyodo&stm=1&col=kiyodo'
-    output += f'\n□ {date} 寄与度上位\n\n'
-    output += build_kabutan_ranking(kiyodo_up_url, 5)
+    # みんかぶの寄与度ランキング
+    contrib_url = 'https://fu.minkabu.jp/chart/nikkei225/contribution'
+    output += f'\n□{date} 寄与度上位\n\n'
+    output += build_minkabu_contribution(contrib_url, 1, 5)
 
-    kiyodo_down_url = 'https://kabutan.jp/warning/?mode=8_1&market=0&capitalization=-1&stc=kiyodo&stm=0&col=kiyodo'
-    output += f'\n□ {date} 寄与度下位\n\n'
-    output += build_kabutan_ranking(kiyodo_down_url, 5)
+    output += f'\n□{date} 寄与度下位\n\n'
+    output += build_minkabu_contribution(contrib_url, 2, 5)
 
     return output
 
 # ===== Streamlitアプリ部分 =====
 
 st.title("📈 今日の株式ランキング")
-st.write("Yahoo!ファイナンスとKabutanから最新のランキングを取得します。")
+st.write("Yahoo!ファイナンスとみんかぶから最新のランキングを取得します。")
 
 generate_html = st.checkbox("📄 WordPress用HTMLも生成する")
 
