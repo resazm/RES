@@ -274,7 +274,7 @@ pivot_table
 
 st.write("-----------------------")
 
-st.title("■注文DBデータ集計(2024.9~)")
+st.title("■注文DBデータ集計")
 st.write("注文DBよりテストアカウント,キャンセル,未課金,未入金を除いた生データ。分割決済や計上月を考慮していない注文月ベースのデータのため、実際の会計上の売上とは異なる。")
 
 pivot_table = pd.pivot_table(df, index=["新 業務提携者（従属）"], columns=["年月"],values=["合計金額","自社報酬分"],  aggfunc="sum", margins=True)
