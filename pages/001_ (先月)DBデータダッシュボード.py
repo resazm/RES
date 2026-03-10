@@ -12,7 +12,7 @@ st.set_page_config(
    layout="wide",
 )
 
-df_kokyaku = pd.read_excel("./顧客DB.xlsx", sheet_name="Sheet1", header=0, usecols="A:CN")
+df_kokyaku = pd.read_excel("./顧客DB.xlsx", sheet_name="Sheet1", header=0, usecols="A:R")
 df = pd.read_excel("./注文DB.xlsx", sheet_name="Sheet1", header=0, usecols="A:EC")
 
 df["新 報酬率(パートナー)"].fillna(0, inplace=True)

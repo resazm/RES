@@ -44,13 +44,13 @@ detail_df = df[(df["計上月"].isin(select_keijo))&(df["タイプ1"].isin(selec
 col1, col2 =  st.columns([1, 1])
 with col1:
    fig = px.bar(detail_df, x="計上月", y="合計金額", color="タイプ2", barmode="group")
-   fig.update_yaxes(tickformat=",",range=(0, 20000000),dtick=2000000)
+   fig.update_yaxes(tickformat=",",range=(0, 25000000),dtick=2000000)
    st.subheader("")
    st.plotly_chart(fig, use_container_width=True)
 with col2:
    df1=detail_df[(detail_df["タイプ2"] == "全体売上")] # 条件式で抽出
    fig = px.bar(df1, x="計上月", y="合計金額", color="タイプ1", barmode="stack")
-   fig.update_yaxes(tickformat=",",range=(0, 20000000),dtick=2000000)
+   fig.update_yaxes(tickformat=",",range=(0, 25000000),dtick=2000000)
    st.subheader("")
    st.plotly_chart(fig, use_container_width=True)
 
